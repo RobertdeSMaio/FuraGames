@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: 'Inter', 'Inter Fallback', sans-serif;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+
+@layer base {
+  * {
+    @apply border-zinc-800 outline-emerald-500/50;
+  }
+  body {
+    @apply bg-zinc-950 text-zinc-100;
+  }
+}
