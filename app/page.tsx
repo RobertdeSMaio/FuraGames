@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth-context";
+import { Analytics } from "@vercel/analytics/next";
 import { ArrowRight, BookOpen, Gamepad2, Star, Users } from "lucide-react";
 import Link from "next/link";
 
@@ -9,6 +10,7 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen">
+      <Analytics />
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-zinc-950/80 backdrop-blur-lg border-b border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
