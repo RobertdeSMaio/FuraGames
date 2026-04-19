@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/components/auth-context";
 import { ReviewCard } from "@/components/review-card";
-import { store } from "@/lib/store";
+import { api } from "@/lib/api";
 import { GameReview, Group } from "@/lib/types";
 import { ArrowLeft, Check, Copy, Crown, Plus, User, Users } from "lucide-react";
 import Link from "next/link";
@@ -20,13 +20,13 @@ export default function GroupDetailPage() {
   const [showMembersModal, setShowMembersModal] = useState(false);
 
   useEffect(() => {
-    const foundGroup = store.getGroup(params.id as string);
-    setGroup(foundGroup);
-
-    if (foundGroup) {
-      const groupReviews = store.getReviews(undefined, foundGroup.id);
-      setReviews(groupReviews);
-    }
+    if (!params.id) return;
+    api.groups.get(params.id as string)
+      .then(({ group }) => {
+        setGroup(group);
+        setReviews(group.reviews || []);
+      })
+      .catch(() => setGroup(null));
   }, [params.id]);
 
   const copyInviteCode = () => {
@@ -36,10 +36,12 @@ export default function GroupDetailPage() {
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
-  const handleDeleteReview = (id: string) => {
+  const handleDeleteReview = async (id: string) => {
     if (confirm("Tem certeza que deseja excluir esta análise?")) {
-      store.deleteReview(id);
-      setReviews(reviews.filter((r) => r.id !== id));
+      try {
+        await api.reviews.delete(id);
+        setReviews(reviews.filter((r) => r.id !== id));
+      } catch (e) { console.error(e); }
     }
   };
 

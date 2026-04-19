@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth-context";
-import { store } from "@/lib/store";
+import { api } from "@/lib/api";
 import { GameReview } from "@/lib/types";
 import { ArrowLeft, Plus, Star, X } from "lucide-react";
 import Link from "next/link";
@@ -9,7 +9,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function EditReviewPage() {
-  const { user } = useAuth();
+  const { user } = useAuth(); // needed for auth guard
   const router = useRouter();
   const params = useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,44 +29,43 @@ export default function EditReviewPage() {
   });
 
   useEffect(() => {
-    const allReviews = store.getReviews();
-    const review = allReviews.find((r) => r.id === params.id);
-
-    if (review && user?.id === review.userId) {
-      setFormData({
-        title: review.title,
-        platform: review.platform,
-        genre: review.genre,
-        rating: review.rating,
-        hoursPlayed: review.hoursPlayed,
-        status: review.status,
-        review: review.review,
-        coverImage: review.coverImage || "",
-        pros: review.pros.length > 0 ? review.pros : [""],
-        cons: review.cons.length > 0 ? review.cons : [""],
-      });
-    } else {
-      setNotFound(true);
-    }
-  }, [params.id, user]);
+    if (!params.id) return;
+    api.reviews.get(params.id as string)
+      .then(({ review }) => {
+        setFormData({
+          title: review.title,
+          platform: review.platform,
+          genre: review.genre,
+          rating: review.rating,
+          hoursPlayed: review.hoursPlayed,
+          status: review.status,
+          review: review.review,
+          coverImage: review.coverImage || "",
+          pros: review.pros.length > 0 ? review.pros : [""],
+          cons: review.cons.length > 0 ? review.cons : [""],
+        });
+      })
+      .catch(() => setNotFound(true));
+  }, [params.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
     setIsSubmitting(true);
-
-    const updated = store.updateReview(params.id as string, {
-      ...formData,
-      pros: formData.pros.filter((p) => p.trim()),
-      cons: formData.cons.filter((c) => c.trim()),
-    });
-
-    if (updated) {
+    try {
+      await api.reviews.update(params.id as string, {
+        ...formData,
+        pros: formData.pros.filter((p) => p.trim()),
+        cons: formData.cons.filter((c) => c.trim()),
+      });
       router.push("/dashboard");
+    } catch (err) {
+      alert("Erro ao salvar alterações. Tente novamente.");
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   };
 
   const addPro = () =>

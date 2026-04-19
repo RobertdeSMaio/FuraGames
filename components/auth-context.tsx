@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react'
 import { User } from '@/lib/types'
-import { store } from '@/lib/store'
+import { api, setToken, clearToken } from '@/lib/api'
 
 interface AuthContextType {
   user: User | null
@@ -19,32 +19,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Check for existing session
-    const currentUser = store.getCurrentUser()
-    setUser(currentUser)
-    setIsLoading(false)
+    const token = typeof window !== 'undefined' ? localStorage.getItem('furagames_token') : null
+    if (token) {
+      api.auth.me()
+        .then(({ user }) => setUser(user))
+        .catch(() => clearToken())
+        .finally(() => setIsLoading(false))
+    } else {
+      setIsLoading(false)
+    }
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
-    const loggedInUser = store.login(email, password)
-    if (loggedInUser) {
-      setUser(loggedInUser)
+    try {
+      const { user, token } = await api.auth.login(email, password)
+      setToken(token)
+      setUser(user)
       return true
+    } catch {
+      return false
     }
-    return false
   }, [])
 
   const register = useCallback(async (name: string, email: string, password: string) => {
-    const newUser = store.register(name, email, password)
-    if (newUser) {
-      setUser(newUser)
+    try {
+      const { user, token } = await api.auth.register(name, email, password)
+      setToken(token)
+      setUser(user)
       return true
+    } catch {
+      return false
     }
-    return false
   }, [])
 
   const logout = useCallback(() => {
-    store.logout()
+    clearToken()
     setUser(null)
   }, [])
 
@@ -57,8 +66,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
+  if (context === undefined) throw new Error('useAuth must be used within an AuthProvider')
   return context
 }

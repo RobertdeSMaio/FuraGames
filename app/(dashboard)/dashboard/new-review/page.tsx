@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth-context";
-import { store } from "@/lib/store";
+import { api } from "@/lib/api";
 import { ArrowLeft, Plus, Star, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -30,20 +30,19 @@ export default function NewReviewPage() {
     if (!user) return;
 
     setIsSubmitting(true);
-
-    const review = store.addReview({
-      ...formData,
-      userId: user.id,
-      userName: user.name,
-      pros: formData.pros.filter((p) => p.trim()),
-      cons: formData.cons.filter((c) => c.trim()),
-    });
-
-    if (review) {
+    try {
+      await api.reviews.create({
+        ...formData,
+        pros: formData.pros.filter((p) => p.trim()),
+        cons: formData.cons.filter((c) => c.trim()),
+      });
       router.push("/dashboard");
+    } catch (err) {
+      alert("Erro ao salvar análise. Tente novamente.");
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   };
 
   const addPro = () =>

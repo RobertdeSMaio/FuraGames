@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/components/auth-context";
 import { ReviewCard } from "@/components/review-card";
-import { store } from "@/lib/store";
+import { api } from "@/lib/api";
 import { GameReview } from "@/lib/types";
 import { Filter, Gamepad2, Plus, Search } from "lucide-react";
 import Link from "next/link";
@@ -13,18 +13,27 @@ export default function DashboardPage() {
   const [reviews, setReviews] = useState<GameReview[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
-      const userReviews = store.getReviews(user.id);
-      setReviews(userReviews);
+      api.reviews
+        .list()
+        .then(({ reviews }) => setReviews(reviews))
+        .catch(console.error)
+        .finally(() => setIsLoading(false));
     }
   }, [user]);
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Tem certeza que deseja excluir esta análise?")) {
-      store.deleteReview(id);
-      setReviews(reviews.filter((r) => r.id !== id));
+      try {
+        await api.reviews.delete(id);
+        setReviews(reviews.filter((r) => r.id !== id));
+      } catch (e) {
+        alert("Erro ao deletar review");
+        console.error(e);
+      }
     }
   };
 
@@ -124,7 +133,16 @@ export default function DashboardPage() {
       </div>
 
       {/* Reviews Grid */}
-      {filteredReviews.length > 0 ? (
+      {isLoading ? (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className="bg-zinc-900 rounded-xl border border-zinc-800 h-64 animate-pulse"
+            />
+          ))}
+        </div>
+      ) : filteredReviews.length > 0 ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredReviews.map((review) => (
             <ReviewCard

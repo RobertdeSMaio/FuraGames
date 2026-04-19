@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth-context";
-import { store } from "@/lib/store";
+import { api } from "@/lib/api";
 import { Group } from "@/lib/types";
 import { Check, Copy, LogOut, Plus, Trash2, Users } from "lucide-react";
 import Link from "next/link";
@@ -16,8 +16,7 @@ export default function GroupsPage() {
 
   useEffect(() => {
     if (user) {
-      const userGroups = store.getGroups(user.id);
-      setGroups(userGroups);
+      api.groups.list().then(({ groups }) => setGroups(groups)).catch(console.error);
     }
   }, [user]);
 
@@ -27,26 +26,26 @@ export default function GroupsPage() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  const handleLeaveGroup = (groupId: string) => {
+  const handleLeaveGroup = async (groupId: string) => {
     if (!user) return;
     if (confirm("Tem certeza que deseja sair deste grupo?")) {
-      const success = store.leaveGroup(groupId, user.id);
-      if (success) {
+      try {
+        await api.groups.leave(groupId);
         setGroups(groups.filter((g) => g.id !== groupId));
+      } catch (e: unknown) {
+        alert(e instanceof Error ? e.message : "Erro ao sair do grupo");
       }
     }
   };
 
-  const handleDeleteGroup = (groupId: string) => {
+  const handleDeleteGroup = async (groupId: string) => {
     if (!user) return;
-    if (
-      confirm(
-        "Tem certeza que deseja excluir este grupo? Todas as análises do grupo serão perdidas.",
-      )
-    ) {
-      const success = store.deleteGroup(groupId, user.id);
-      if (success) {
+    if (confirm("Tem certeza que deseja excluir este grupo? Todas as análises do grupo serão perdidas.")) {
+      try {
+        await api.groups.delete(groupId);
         setGroups(groups.filter((g) => g.id !== groupId));
+      } catch (e: unknown) {
+        alert(e instanceof Error ? e.message : "Erro ao deletar grupo");
       }
     }
   };
@@ -226,19 +225,21 @@ function CreateGroupModal({
   onClose: () => void;
   onCreated: (group: Group) => void;
 }) {
-  const { user } = useAuth();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-
     setIsSubmitting(true);
-    const group = store.createGroup(name, description, user);
-    onCreated(group);
-    setIsSubmitting(false);
+    try {
+      const { group } = await api.groups.create(name, description);
+      onCreated(group);
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Erro ao criar grupo");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -302,27 +303,22 @@ function JoinGroupModal({
   onClose: () => void;
   onJoined: (group: Group) => void;
 }) {
-  const { user } = useAuth();
   const [inviteCode, setInviteCode] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-
     setError("");
     setIsSubmitting(true);
-
-    const group = store.joinGroup(inviteCode.toUpperCase(), user);
-
-    if (group) {
+    try {
+      const { group } = await api.groups.join(inviteCode.toUpperCase());
       onJoined(group);
-    } else {
-      setError("Código de convite inválido");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Código de convite inválido");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   };
 
   return (

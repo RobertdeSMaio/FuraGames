@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth-context";
-import { store } from "@/lib/store";
+import { api } from "@/lib/api";
 import { GameReview } from "@/lib/types";
 import {
   ArrowLeft,
@@ -39,9 +39,10 @@ export default function ReviewDetailPage() {
   const [review, setReview] = useState<GameReview | null>(null);
 
   useEffect(() => {
-    const allReviews = store.getReviews();
-    const found = allReviews.find((r) => r.id === params.id);
-    setReview(found || null);
+    if (!params.id) return;
+    api.reviews.get(params.id as string)
+      .then(({ review }) => setReview(review))
+      .catch(() => setReview(null));
   }, [params.id]);
 
   if (!review) {
