@@ -6,12 +6,11 @@ import { api } from "@/lib/api";
 import { GameReview, Group } from "@/lib/types";
 import { ArrowLeft, Check, Copy, Crown, Plus, User, Users } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function GroupDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const { user } = useAuth();
   const [group, setGroup] = useState<Group | null>(null);
   const [reviews, setReviews] = useState<GameReview[]>([]);
@@ -21,10 +20,11 @@ export default function GroupDetailPage() {
 
   useEffect(() => {
     if (!params.id) return;
-    api.groups.get(params.id as string)
+    api.groups
+      .get(params.id as string)
       .then(({ group }) => {
         setGroup(group);
-        setReviews(group.reviews || []);
+        setReviews((group as any).reviews || []);
       })
       .catch(() => setGroup(null));
   }, [params.id]);
@@ -41,7 +41,9 @@ export default function GroupDetailPage() {
       try {
         await api.reviews.delete(id);
         setReviews(reviews.filter((r) => r.id !== id));
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
 
@@ -90,7 +92,6 @@ export default function GroupDetailPage() {
         Voltar aos grupos
       </Link>
 
-      {/* Header */}
       <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 mb-8">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
           <div className="flex items-start gap-4">
@@ -102,7 +103,6 @@ export default function GroupDetailPage() {
               <p className="text-zinc-400 mt-1">{group.description}</p>
             </div>
           </div>
-
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowMembersModal(true)}
@@ -131,24 +131,18 @@ export default function GroupDetailPage() {
             </button>
           </div>
         </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowAddReviewModal(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-yellow-500 text-zinc-950 font-medium hover:bg-orange-400 transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-            Adicionar Análise
-          </button>
-        </div>
+        <button
+          onClick={() => setShowAddReviewModal(true)}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-yellow-500 text-zinc-950 font-medium hover:bg-orange-400 transition-colors"
+        >
+          <Plus className="w-5 h-5" />
+          Adicionar Análise
+        </button>
       </div>
 
-      {/* Reviews */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-zinc-100 mb-4">
-          Análises do Grupo ({reviews.length})
-        </h2>
-      </div>
+      <h2 className="text-xl font-semibold text-zinc-100 mb-4">
+        Análises do Grupo ({reviews.length})
+      </h2>
 
       {reviews.length > 0 ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -177,7 +171,6 @@ export default function GroupDetailPage() {
         </div>
       )}
 
-      {/* Add Review Modal */}
       {showAddReviewModal && (
         <AddReviewToGroupModal
           groupId={group.id}
@@ -188,8 +181,6 @@ export default function GroupDetailPage() {
           }}
         />
       )}
-
-      {/* Members Modal */}
       {showMembersModal && (
         <MembersModal
           group={group}
@@ -210,7 +201,6 @@ function AddReviewToGroupModal({
   onClose: () => void;
   onAdded: (review: GameReview) => void;
 }) {
-  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -223,23 +213,23 @@ function AddReviewToGroupModal({
     coverImage: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-
     setIsSubmitting(true);
-
-    const review = store.addReview({
-      ...formData,
-      userId: user.id,
-      userName: user.name,
-      groupId,
-      pros: [],
-      cons: [],
-    });
-
-    onAdded(review);
-    setIsSubmitting(false);
+    try {
+      const { review } = await api.reviews.create({
+        ...formData,
+        groupId,
+        pros: [],
+        cons: [],
+      });
+      onAdded(review);
+    } catch (err) {
+      alert("Erro ao adicionar análise.");
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -260,10 +250,9 @@ function AddReviewToGroupModal({
                 setFormData({ ...formData, title: e.target.value })
               }
               required
-              className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
             />
           </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-zinc-100">
@@ -276,7 +265,7 @@ function AddReviewToGroupModal({
                   setFormData({ ...formData, platform: e.target.value })
                 }
                 required
-                className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
               />
             </div>
             <div className="space-y-2">
@@ -290,11 +279,10 @@ function AddReviewToGroupModal({
                   setFormData({ ...formData, genre: e.target.value })
                 }
                 required
-                className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
               />
             </div>
           </div>
-
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-zinc-100">Nota</label>
@@ -349,7 +337,6 @@ function AddReviewToGroupModal({
               </select>
             </div>
           </div>
-
           <div className="space-y-2">
             <label className="text-sm font-medium text-zinc-100">
               Análise *
@@ -361,10 +348,9 @@ function AddReviewToGroupModal({
               }
               required
               rows={3}
-              className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"
+              className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"
             />
           </div>
-
           <div className="space-y-2">
             <label className="text-sm font-medium text-zinc-100">
               URL da Imagem (opcional)
@@ -375,10 +361,9 @@ function AddReviewToGroupModal({
               onChange={(e) =>
                 setFormData({ ...formData, coverImage: e.target.value })
               }
-              className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
             />
           </div>
-
           <div className="flex items-center gap-3 pt-2">
             <button
               type="button"
@@ -403,7 +388,7 @@ function AddReviewToGroupModal({
 
 function MembersModal({
   group,
-  isOwner,
+  isOwner: _isOwner,
   onClose,
 }: {
   group: Group;
@@ -417,28 +402,31 @@ function MembersModal({
           Membros ({group.members.length})
         </h2>
         <div className="space-y-3 max-h-80 overflow-y-auto">
-          {group.members.map((member) => (
-            <div
-              key={member.userId}
-              className="flex items-center gap-3 p-3 rounded-lg bg-zinc-800"
-            >
-              <div className="w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center">
-                {member.role === "owner" ? (
-                  <Crown className="w-5 h-5 text-amber-400" />
-                ) : (
-                  <User className="w-5 h-5 text-zinc-400" />
-                )}
+          {group.members.map((member) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const name =
+              (member as any).user?.name || member.userName || "Usuário";
+            return (
+              <div
+                key={member.userId}
+                className="flex items-center gap-3 p-3 rounded-lg bg-zinc-800"
+              >
+                <div className="w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center">
+                  {member.role === "owner" ? (
+                    <Crown className="w-5 h-5 text-amber-400" />
+                  ) : (
+                    <User className="w-5 h-5 text-zinc-400" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-zinc-100">{name}</p>
+                  <p className="text-xs text-zinc-500">
+                    {member.role === "owner" ? "Dono" : "Membro"}
+                  </p>
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-zinc-100">
-                  {member.userName}
-                </p>
-                <p className="text-xs text-zinc-500 capitalize">
-                  {member.role === "owner" ? "Dono" : "Membro"}
-                </p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         <button
           onClick={onClose}
