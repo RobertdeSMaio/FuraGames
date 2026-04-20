@@ -25,4 +25,4 @@ A plataforma permite que os utilizadores registem o seu progresso, avaliem jogos
 
 O projeto utiliza o Prisma para gerir um esquema relacional otimizado.
 
-**FuraGames:** [FuraGames](https://fura-games.vercel.app/) FuraGames.
+**FuraGames:** [FuraGames](https://fura-games.vercel.app/)
