@@ -20,8 +20,7 @@ export default function GroupDetailPage() {
 
   useEffect(() => {
     if (!params.id) return;
-    api.groups
-      .get(params.id as string)
+    api.groups.get(params.id as string)
       .then(({ group }) => {
         setGroup(group);
         setReviews((group as any).reviews || []);
@@ -41,9 +40,7 @@ export default function GroupDetailPage() {
       try {
         await api.reviews.delete(id);
         setReviews(reviews.filter((r) => r.id !== id));
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) { console.error(e); }
     }
   };
 
@@ -52,10 +49,7 @@ export default function GroupDetailPage() {
       <div className="p-8">
         <div className="text-center py-12">
           <p className="text-zinc-400">Grupo não encontrado</p>
-          <Link
-            href="/dashboard/groups"
-            className="text-yellow-400 hover:underline mt-2 inline-block"
-          >
+          <Link href="/dashboard/groups" className="text-yellow-400 hover:underline mt-2 inline-block">
             Voltar aos grupos
           </Link>
         </div>
@@ -71,10 +65,7 @@ export default function GroupDetailPage() {
       <div className="p-8">
         <div className="text-center py-12">
           <p className="text-zinc-400">Você não é membro deste grupo</p>
-          <Link
-            href="/dashboard/groups"
-            className="text-yellow-400 hover:underline mt-2 inline-block"
-          >
+          <Link href="/dashboard/groups" className="text-yellow-400 hover:underline mt-2 inline-block">
             Voltar aos grupos
           </Link>
         </div>
@@ -84,10 +75,7 @@ export default function GroupDetailPage() {
 
   return (
     <div className="p-8">
-      <Link
-        href="/dashboard/groups"
-        className="inline-flex items-center gap-2 text-zinc-400 hover:text-zinc-100 mb-6 transition-colors"
-      >
+      <Link href="/dashboard/groups" className="inline-flex items-center gap-2 text-zinc-400 hover:text-zinc-100 mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" />
         Voltar aos grupos
       </Link>
@@ -104,125 +92,57 @@ export default function GroupDetailPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowMembersModal(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 text-zinc-100 hover:bg-zinc-700 transition-colors"
-            >
+            <button onClick={() => setShowMembersModal(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 text-zinc-100 hover:bg-zinc-700 transition-colors">
               <Users className="w-4 h-4" />
-              <span>
-                {group.members.length} membro{group.members.length !== 1 && "s"}
-              </span>
+              <span>{group.members.length} membro{group.members.length !== 1 && "s"}</span>
             </button>
-            <button
-              onClick={copyInviteCode}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 text-zinc-100 hover:bg-zinc-700 transition-colors"
-            >
-              {copiedCode ? (
-                <>
-                  <Check className="w-4 h-4 text-yellow-400" />
-                  Copiado!
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" />
-                  {group.inviteCode}
-                </>
-              )}
+            <button onClick={copyInviteCode} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 text-zinc-100 hover:bg-zinc-700 transition-colors">
+              {copiedCode ? (<><Check className="w-4 h-4 text-yellow-400" />Copiado!</>) : (<><Copy className="w-4 h-4" />{group.inviteCode}</>)}
             </button>
           </div>
         </div>
-        <button
-          onClick={() => setShowAddReviewModal(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-yellow-500 text-zinc-950 font-medium hover:bg-orange-400 transition-colors"
-        >
+        <button onClick={() => setShowAddReviewModal(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-yellow-500 text-zinc-950 font-medium hover:bg-orange-400 transition-colors">
           <Plus className="w-5 h-5" />
           Adicionar Análise
         </button>
       </div>
 
-      <h2 className="text-xl font-semibold text-zinc-100 mb-4">
-        Análises do Grupo ({reviews.length})
-      </h2>
+      <h2 className="text-xl font-semibold text-zinc-100 mb-4">Análises do Grupo ({reviews.length})</h2>
 
       {reviews.length > 0 ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {reviews.map((review) => (
-            <ReviewCard
-              key={review.id}
-              review={review}
-              showAuthor={true}
-              canEdit={review.userId === user?.id}
-              onDelete={
-                review.userId === user?.id ? handleDeleteReview : undefined
-              }
-            />
+            <ReviewCard key={review.id} review={review} showAuthor={true} canEdit={review.userId === user?.id} onDelete={review.userId === user?.id ? handleDeleteReview : undefined} />
           ))}
         </div>
       ) : (
         <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-12 text-center">
           <p className="text-zinc-400 mb-4">Nenhuma análise no grupo ainda</p>
-          <button
-            onClick={() => setShowAddReviewModal(true)}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-yellow-500 text-zinc-950 font-medium hover:bg-orange-400 transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-            Adicionar primeira análise
+          <button onClick={() => setShowAddReviewModal(true)} className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-yellow-500 text-zinc-950 font-medium hover:bg-orange-400 transition-colors">
+            <Plus className="w-5 h-5" />Adicionar primeira análise
           </button>
         </div>
       )}
 
       {showAddReviewModal && (
-        <AddReviewToGroupModal
-          groupId={group.id}
-          onClose={() => setShowAddReviewModal(false)}
-          onAdded={(review) => {
-            setReviews([review, ...reviews]);
-            setShowAddReviewModal(false);
-          }}
-        />
+        <AddReviewToGroupModal groupId={group.id} onClose={() => setShowAddReviewModal(false)} onAdded={(review) => { setReviews([review, ...reviews]); setShowAddReviewModal(false); }} />
       )}
       {showMembersModal && (
-        <MembersModal
-          group={group}
-          isOwner={isOwner}
-          onClose={() => setShowMembersModal(false)}
-        />
+        <MembersModal group={group} isOwner={isOwner} onClose={() => setShowMembersModal(false)} />
       )}
     </div>
   );
 }
 
-function AddReviewToGroupModal({
-  groupId,
-  onClose,
-  onAdded,
-}: {
-  groupId: string;
-  onClose: () => void;
-  onAdded: (review: GameReview) => void;
-}) {
+function AddReviewToGroupModal({ groupId, onClose, onAdded }: { groupId: string; onClose: () => void; onAdded: (review: GameReview) => void }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    platform: "",
-    genre: "",
-    rating: 8,
-    hoursPlayed: 0,
-    status: "completed" as GameReview["status"],
-    review: "",
-    coverImage: "",
-  });
+  const [formData, setFormData] = useState({ title: "", platform: "", genre: "", rating: 8, hoursPlayed: 0, status: "completed" as GameReview["status"], review: "", coverImage: "" });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const { review } = await api.reviews.create({
-        ...formData,
-        groupId,
-        pros: [],
-        cons: [],
-      });
+      const { review } = await api.reviews.create({ ...formData, groupId, pros: [], cons: [] });
       onAdded(review);
     } catch (err) {
       alert("Erro ao adicionar análise.");
@@ -235,100 +155,36 @@ function AddReviewToGroupModal({
   return (
     <div className="fixed inset-0 bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
       <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 w-full max-w-lg my-8">
-        <h2 className="text-xl font-semibold text-zinc-100 mb-4">
-          Adicionar Análise ao Grupo
-        </h2>
+        <h2 className="text-xl font-semibold text-zinc-100 mb-4">Adicionar Análise ao Grupo</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-100">
-              Nome do Jogo *
-            </label>
-            <input
-              type="text"
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              required
-              className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-            />
+            <label className="text-sm font-medium text-zinc-100">Nome do Jogo *</label>
+            <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-100">
-                Plataforma *
-              </label>
-              <input
-                type="text"
-                value={formData.platform}
-                onChange={(e) =>
-                  setFormData({ ...formData, platform: e.target.value })
-                }
-                required
-                className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              />
+              <label className="text-sm font-medium text-zinc-100">Plataforma *</label>
+              <input type="text" value={formData.platform} onChange={(e) => setFormData({ ...formData, platform: e.target.value })} required className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-100">
-                Gênero *
-              </label>
-              <input
-                type="text"
-                value={formData.genre}
-                onChange={(e) =>
-                  setFormData({ ...formData, genre: e.target.value })
-                }
-                required
-                className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              />
+              <label className="text-sm font-medium text-zinc-100">Gênero *</label>
+              <input type="text" value={formData.genre} onChange={(e) => setFormData({ ...formData, genre: e.target.value })} required className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-zinc-100">Nota</label>
-              <select
-                value={formData.rating}
-                onChange={(e) =>
-                  setFormData({ ...formData, rating: parseInt(e.target.value) })
-                }
-                className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
+              <select value={formData.rating} onChange={(e) => setFormData({ ...formData, rating: parseInt(e.target.value) })} className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                {[1,2,3,4,5,6,7,8,9,10].map((n) => <option key={n} value={n}>{n}</option>)}
               </select>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-zinc-100">Horas</label>
-              <input
-                type="number"
-                min="0"
-                value={formData.hoursPlayed}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    hoursPlayed: parseInt(e.target.value) || 0,
-                  })
-                }
-                className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              />
+              <input type="number" min="0" value={formData.hoursPlayed} onChange={(e) => setFormData({ ...formData, hoursPlayed: parseInt(e.target.value) || 0 })} className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-100">
-                Status
-              </label>
-              <select
-                value={formData.status}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    status: e.target.value as GameReview["status"],
-                  })
-                }
-                className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              >
+              <label className="text-sm font-medium text-zinc-100">Status</label>
+              <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value as GameReview["status"] })} className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500">
                 <option value="completed">Completado</option>
                 <option value="playing">Jogando</option>
                 <option value="dropped">Abandonado</option>
@@ -338,45 +194,16 @@ function AddReviewToGroupModal({
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-100">
-              Análise *
-            </label>
-            <textarea
-              value={formData.review}
-              onChange={(e) =>
-                setFormData({ ...formData, review: e.target.value })
-              }
-              required
-              rows={3}
-              className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"
-            />
+            <label className="text-sm font-medium text-zinc-100">Análise *</label>
+            <textarea value={formData.review} onChange={(e) => setFormData({ ...formData, review: e.target.value })} required rows={3} className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none" />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-100">
-              URL da Imagem (opcional)
-            </label>
-            <input
-              type="url"
-              value={formData.coverImage}
-              onChange={(e) =>
-                setFormData({ ...formData, coverImage: e.target.value })
-              }
-              className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-            />
+            <label className="text-sm font-medium text-zinc-100">URL da Imagem (opcional)</label>
+            <input type="url" value={formData.coverImage} onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })} className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
           </div>
           <div className="flex items-center gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2.5 rounded-lg bg-zinc-800 text-zinc-100 font-medium hover:bg-zinc-700 transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 py-2.5 rounded-lg bg-yellow-500 text-zinc-950 font-medium hover:bg-orange-400 transition-colors disabled:opacity-50"
-            >
+            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-lg bg-zinc-800 text-zinc-100 font-medium hover:bg-zinc-700 transition-colors">Cancelar</button>
+            <button type="submit" disabled={isSubmitting} className="flex-1 py-2.5 rounded-lg bg-yellow-500 text-zinc-950 font-medium hover:bg-orange-400 transition-colors disabled:opacity-50">
               {isSubmitting ? "Adicionando..." : "Adicionar"}
             </button>
           </div>
@@ -386,54 +213,28 @@ function AddReviewToGroupModal({
   );
 }
 
-function MembersModal({
-  group,
-  isOwner: _isOwner,
-  onClose,
-}: {
-  group: Group;
-  isOwner: boolean;
-  onClose: () => void;
-}) {
+function MembersModal({ group, isOwner: _isOwner, onClose }: { group: Group; isOwner: boolean; onClose: () => void }) {
   return (
     <div className="fixed inset-0 bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 w-full max-w-md">
-        <h2 className="text-xl font-semibold text-zinc-100 mb-4">
-          Membros ({group.members.length})
-        </h2>
+        <h2 className="text-xl font-semibold text-zinc-100 mb-4">Membros ({group.members.length})</h2>
         <div className="space-y-3 max-h-80 overflow-y-auto">
           {group.members.map((member) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const name =
-              (member as any).user?.name || member.userName || "Usuário";
+            const name = (member as any).user?.name || member.userName || "Usuário";
             return (
-              <div
-                key={member.userId}
-                className="flex items-center gap-3 p-3 rounded-lg bg-zinc-800"
-              >
+              <div key={member.userId} className="flex items-center gap-3 p-3 rounded-lg bg-zinc-800">
                 <div className="w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center">
-                  {member.role === "owner" ? (
-                    <Crown className="w-5 h-5 text-amber-400" />
-                  ) : (
-                    <User className="w-5 h-5 text-zinc-400" />
-                  )}
+                  {member.role === "owner" ? <Crown className="w-5 h-5 text-amber-400" /> : <User className="w-5 h-5 text-zinc-400" />}
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-zinc-100">{name}</p>
-                  <p className="text-xs text-zinc-500">
-                    {member.role === "owner" ? "Dono" : "Membro"}
-                  </p>
+                  <p className="text-xs text-zinc-500">{member.role === "owner" ? "Dono" : "Membro"}</p>
                 </div>
               </div>
             );
           })}
         </div>
-        <button
-          onClick={onClose}
-          className="w-full mt-4 py-2.5 rounded-lg bg-zinc-800 text-zinc-100 font-medium hover:bg-zinc-700 transition-colors"
-        >
-          Fechar
-        </button>
+        <button onClick={onClose} className="w-full mt-4 py-2.5 rounded-lg bg-zinc-800 text-zinc-100 font-medium hover:bg-zinc-700 transition-colors">Fechar</button>
       </div>
     </div>
   );

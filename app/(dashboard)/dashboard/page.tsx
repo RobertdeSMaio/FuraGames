@@ -17,8 +17,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (user) {
-      api.reviews
-        .list()
+      api.reviews.list()
         .then(({ reviews }) => setReviews(reviews))
         .catch(console.error)
         .finally(() => setIsLoading(false));
@@ -38,11 +37,8 @@ export default function DashboardPage() {
   };
 
   const filteredReviews = reviews.filter((review) => {
-    const matchesSearch = review.title
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" || review.status === statusFilter;
+    const matchesSearch = review.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || review.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -52,9 +48,7 @@ export default function DashboardPage() {
     playing: reviews.filter((r) => r.status === "playing").length,
     avgRating:
       reviews.length > 0
-        ? (
-            reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
-          ).toFixed(1)
+        ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
         : "0",
     totalHours: reviews.reduce((acc, r) => acc + r.hoursPlayed, 0),
   };
@@ -62,15 +56,11 @@ export default function DashboardPage() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-zinc-100 mb-2">
-          Minhas Análises
-        </h1>
-        <p className="text-zinc-400">
-          Gerencie suas análises e reviews de jogos
-        </p>
+        <h1 className="text-3xl font-bold text-zinc-100 mb-2">Minhas Análises</h1>
+        <p className="text-zinc-400">Gerencie suas análises e reviews de jogos</p>
       </div>
 
-      {/* Stats */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-zinc-900 rounded-xl p-5 border border-zinc-800">
           <p className="text-sm text-zinc-400 mb-1">Total de Jogos</p>
@@ -78,9 +68,7 @@ export default function DashboardPage() {
         </div>
         <div className="bg-zinc-900 rounded-xl p-5 border border-zinc-800">
           <p className="text-sm text-zinc-400 mb-1">Completados</p>
-          <p className="text-2xl font-bold text-emerald-400">
-            {stats.completed}
-          </p>
+          <p className="text-2xl font-bold text-emerald-400">{stats.completed}</p>
         </div>
         <div className="bg-zinc-900 rounded-xl p-5 border border-zinc-800">
           <p className="text-sm text-zinc-400 mb-1">Nota Média</p>
@@ -88,13 +76,11 @@ export default function DashboardPage() {
         </div>
         <div className="bg-zinc-900 rounded-xl p-5 border border-zinc-800">
           <p className="text-sm text-zinc-400 mb-1">Horas Jogadas</p>
-          <p className="text-2xl font-bold text-violet-400">
-            {stats.totalHours}h
-          </p>
+          <p className="text-2xl font-bold text-violet-400">{stats.totalHours}h</p>
         </div>
       </div>
 
-      {/* Filters */}
+      {}
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
@@ -132,25 +118,17 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {/* Reviews Grid */}
+      {}
       {isLoading ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <div
-              key={i}
-              className="bg-zinc-900 rounded-xl border border-zinc-800 h-64 animate-pulse"
-            />
+            <div key={i} className="bg-zinc-900 rounded-xl border border-zinc-800 h-64 animate-pulse" />
           ))}
         </div>
       ) : filteredReviews.length > 0 ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredReviews.map((review) => (
-            <ReviewCard
-              key={review.id}
-              review={review}
-              onDelete={handleDelete}
-              canEdit={true}
-            />
+            <ReviewCard key={review.id} review={review} onDelete={handleDelete} canEdit={true} />
           ))}
         </div>
       ) : (
@@ -159,9 +137,7 @@ export default function DashboardPage() {
             <Gamepad2 className="w-8 h-8 text-zinc-500" />
           </div>
           <h3 className="text-xl font-semibold text-zinc-100 mb-2">
-            {searchTerm || statusFilter !== "all"
-              ? "Nenhum jogo encontrado"
-              : "Nenhuma análise ainda"}
+            {searchTerm || statusFilter !== "all" ? "Nenhum jogo encontrado" : "Nenhuma análise ainda"}
           </h3>
           <p className="text-zinc-400 mb-6">
             {searchTerm || statusFilter !== "all"

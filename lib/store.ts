@@ -2,7 +2,6 @@
 
 import { User, GameReview, Group, Invite } from './types'
 
-// Demo data
 const demoUsers: User[] = [
   {
     id: '1',
@@ -26,7 +25,7 @@ const demoReviews: GameReview[] = [
     review: 'Uma obra-prima absoluta. A liberdade de criação e exploração é incomparável. O sistema Ultrahand revoluciona a forma de resolver puzzles.',
     pros: ['Gameplay inovador', 'Mundo imenso', 'Liberdade criativa', 'Gráficos lindos'],
     cons: ['Performance em algumas áreas', 'Durabilidade de armas'],
-    coverImage: 'https://images.unsplash.com/photo-1566577134770-3d85bb3a9cc4?w=400&h=600&fit=crop',
+    coverImage: 'https:
     createdAt: new Date('2024-06-15'),
     updatedAt: new Date('2024-06-15'),
   },
@@ -43,7 +42,7 @@ const demoReviews: GameReview[] = [
     review: 'O melhor jogo da FromSoftware. O mundo aberto funciona perfeitamente com a fórmula Souls. Desafiador mas justo.',
     pros: ['Mundo aberto incrível', 'Combate satisfatório', 'Lore profunda', 'Multijogador'],
     cons: ['Alguns bosses repetidos', 'Performance no PC'],
-    coverImage: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=600&fit=crop',
+    coverImage: 'https:
     createdAt: new Date('2024-03-20'),
     updatedAt: new Date('2024-03-20'),
   },
@@ -60,7 +59,7 @@ const demoReviews: GameReview[] = [
     review: 'O padrão ouro dos RPGs. Escolhas significativas, personagens memoráveis e uma quantidade absurda de conteúdo.',
     pros: ['Narrativa excepcional', 'Liberdade de escolhas', 'Personagens incríveis', 'Co-op'],
     cons: ['Bugs ocasionais', 'Ato 3 mais curto'],
-    coverImage: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=600&fit=crop',
+    coverImage: 'https:
     createdAt: new Date('2024-01-10'),
     updatedAt: new Date('2024-01-10'),
   },
@@ -81,7 +80,6 @@ const demoGroups: Group[] = [
   },
 ]
 
-// In-memory store (resets on refresh since no database)
 let users = [...demoUsers]
 let reviews = [...demoReviews]
 let groups = [...demoGroups]
@@ -89,14 +87,12 @@ let invites: Invite[] = []
 let currentUser: User | null = null
 
 export const store = {
-  // Auth
   login(email: string, password: string): User | null {
     const user = users.find(u => u.email === email)
     if (user) {
       currentUser = user
       return user
     }
-    // Demo login
     if (email === 'demo@example.com' && password === 'demo') {
       currentUser = demoUsers[0]
       return demoUsers[0]
@@ -127,7 +123,6 @@ export const store = {
     return currentUser
   },
 
-  // Reviews
   getReviews(userId?: string, groupId?: string): GameReview[] {
     let filtered = reviews
     if (userId) {
@@ -164,7 +159,6 @@ export const store = {
     return true
   },
 
-  // Groups
   getGroups(userId?: string): Group[] {
     if (userId) {
       return groups.filter(g => g.members.some(m => m.userId === userId))
@@ -202,7 +196,7 @@ export const store = {
   leaveGroup(groupId: string, userId: string): boolean {
     const group = groups.find(g => g.id === groupId)
     if (!group) return false
-    if (group.ownerId === userId) return false // Owner can't leave
+    if (group.ownerId === userId) return false
     group.members = group.members.filter(m => m.userId !== userId)
     return true
   },
@@ -215,7 +209,6 @@ export const store = {
     return true
   },
 
-  // Invites
   getInvites(userId: string): Invite[] {
     const user = users.find(u => u.id === userId)
     if (!user) return []

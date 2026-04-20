@@ -161,7 +161,7 @@ export default function NewReviewPage() {
               onChange={(e) =>
                 setFormData({ ...formData, coverImage: e.target.value })
               }
-              placeholder="https://..."
+              placeholder="https:
               className="w-full px-4 py-3 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-yellow-500"
             />
           </div>

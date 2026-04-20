@@ -1,38 +1,33 @@
-"use client";
+"use client"
 
-import { GameReview } from "@/lib/types";
-import { Clock, Edit, Gamepad2, Star, Trash2 } from "lucide-react";
-import Link from "next/link";
+import { GameReview } from '@/lib/types'
+import { Star, Clock, Gamepad2, Trash2, Edit } from 'lucide-react'
+import Link from 'next/link'
 
 interface ReviewCardProps {
-  review: GameReview;
-  showAuthor?: boolean;
-  onDelete?: (id: string) => void;
-  canEdit?: boolean;
+  review: GameReview
+  showAuthor?: boolean
+  onDelete?: (id: string) => void
+  canEdit?: boolean
 }
 
-const statusLabels: Record<GameReview["status"], string> = {
-  playing: "Jogando",
-  completed: "Completado",
-  dropped: "Abandonado",
-  "on-hold": "Em espera",
-  "want-to-play": "Quero jogar",
-};
+const statusLabels: Record<GameReview['status'], string> = {
+  'playing': 'Jogando',
+  'completed': 'Completado',
+  'dropped': 'Abandonado',
+  'on-hold': 'Em espera',
+  'want-to-play': 'Quero jogar',
+}
 
-const statusColors: Record<GameReview["status"], string> = {
-  playing: "bg-blue-500/20 text-blue-400",
-  completed: "bg-emerald-500/20 text-emerald-400",
-  dropped: "bg-red-500/20 text-red-400",
-  "on-hold": "bg-amber-500/20 text-amber-400",
-  "want-to-play": "bg-violet-500/20 text-violet-400",
-};
+const statusColors: Record<GameReview['status'], string> = {
+  'playing': 'bg-blue-500/20 text-blue-400',
+  'completed': 'bg-emerald-500/20 text-emerald-400',
+  'dropped': 'bg-red-500/20 text-red-400',
+  'on-hold': 'bg-amber-500/20 text-amber-400',
+  'want-to-play': 'bg-violet-500/20 text-violet-400',
+}
 
-export function ReviewCard({
-  review,
-  showAuthor = false,
-  onDelete,
-  canEdit = false,
-}: ReviewCardProps) {
+export function ReviewCard({ review, showAuthor = false, onDelete, canEdit = false }: ReviewCardProps) {
   return (
     <div className="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden hover:border-emerald-500/30 transition-colors group">
       <div className="aspect-[4/3] relative bg-zinc-800">
@@ -48,17 +43,13 @@ export function ReviewCard({
           </div>
         )}
         <div className="absolute top-3 left-3">
-          <span
-            className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[review.status]}`}
-          >
+          <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[review.status]}`}>
             {statusLabels[review.status]}
           </span>
         </div>
         <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-zinc-950/80 backdrop-blur-sm">
           <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-          <span className="text-sm font-semibold text-zinc-100">
-            {review.rating}
-          </span>
+          <span className="text-sm font-semibold text-zinc-100">{review.rating}</span>
         </div>
       </div>
 
@@ -84,10 +75,7 @@ export function ReviewCard({
 
         {showAuthor && (
           <p className="text-xs text-zinc-500 mb-4">
-            Por{" "}
-            <span className="text-zinc-100">
-              {(review as any).user?.name || review.userName || "Usuário"}
-            </span>
+            Por <span className="text-zinc-100">{(review as any).user?.name || review.userName || "Usuário"}</span>
           </p>
         )}
 
@@ -98,7 +86,7 @@ export function ReviewCard({
           >
             Ver detalhes
           </Link>
-
+          
           {canEdit && (
             <>
               <Link
@@ -120,5 +108,5 @@ export function ReviewCard({
         </div>
       </div>
     </div>
-  );
+  )
 }

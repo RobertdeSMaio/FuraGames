@@ -7,8 +7,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!auth) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
   const { id } = await params
-  const review = await prisma.gameReview.findFirst({
-    where: { id, userId: auth.userId },
+
+  const review = await prisma.gameReview.findUnique({
+    where: { id },
     include: {
       user: { select: { id: true, name: true, avatar: true } },
       group: { select: { id: true, name: true } },
@@ -16,6 +17,19 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   })
 
   if (!review) return NextResponse.json({ error: 'Review não encontrada' }, { status: 404 })
+
+  const isOwner = review.userId === auth.userId
+  let canView = isOwner
+
+  if (!canView && review.groupId) {
+    const membership = await prisma.groupMember.findFirst({
+      where: { groupId: review.groupId, userId: auth.userId },
+    })
+    canView = !!membership
+  }
+
+  if (!canView) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+
   return NextResponse.json({ review })
 }
 

@@ -16,10 +16,7 @@ export default function GroupsPage() {
 
   useEffect(() => {
     if (user) {
-      api.groups
-        .list()
-        .then(({ groups }) => setGroups(groups))
-        .catch(console.error);
+      api.groups.list().then(({ groups }) => setGroups(groups)).catch(console.error);
     }
   }, [user]);
 
@@ -43,11 +40,7 @@ export default function GroupsPage() {
 
   const handleDeleteGroup = async (groupId: string) => {
     if (!user) return;
-    if (
-      confirm(
-        "Tem certeza que deseja excluir este grupo? Todas as análises do grupo serão perdidas.",
-      )
-    ) {
+    if (confirm("Tem certeza que deseja excluir este grupo? Todas as análises do grupo serão perdidas.")) {
       try {
         await api.groups.delete(groupId);
         setGroups(groups.filter((g) => g.id !== groupId));
@@ -198,7 +191,7 @@ export default function GroupsPage() {
         </div>
       )}
 
-      {/* Create Group Modal */}
+      {}
       {showCreateModal && (
         <CreateGroupModal
           onClose={() => setShowCreateModal(false)}
@@ -209,7 +202,7 @@ export default function GroupsPage() {
         />
       )}
 
-      {/* Join Group Modal */}
+      {}
       {showJoinModal && (
         <JoinGroupModal
           onClose={() => setShowJoinModal(false)}
@@ -319,7 +312,7 @@ function JoinGroupModal({
     setError("");
     setIsSubmitting(true);
     try {
-      const { group } = await api.groups.join(inviteCode);
+      const { group } = await api.groups.join(inviteCode.toUpperCase());
       onJoined(group);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Código de convite inválido");
@@ -342,10 +335,10 @@ function JoinGroupModal({
             <input
               type="text"
               value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value)}
+              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
               placeholder="Ex: ABC123"
               required
-              maxLength={250}
+              maxLength={10}
               className="w-full px-4 py-3 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 font-mono uppercase tracking-wider"
             />
             {error && <p className="text-sm text-red-400">{error}</p>}
