@@ -15,8 +15,14 @@ export default function ProfilePage() {
   const [stats, setStats] = useState({ reviews: 0, groups: 0 });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
-  const [profileMsg, setProfileMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [passwordMsg, setPasswordMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [profileMsg, setProfileMsg] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+  const [passwordMsg, setPasswordMsg] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -24,11 +30,17 @@ export default function ProfilePage() {
     setAvatar((user as unknown as { avatar?: string }).avatar || "");
 
     fetch("/api/user/profile", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("furagames_token")}` },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("furagames_token")}`,
+      },
     })
       .then((r) => r.json())
       .then(({ user }) => {
-        if (user?._count) setStats({ reviews: user._count.reviews, groups: user._count.groupMembers });
+        if (user?._count)
+          setStats({
+            reviews: user._count.reviews,
+            groups: user._count.groupMembers,
+          });
       })
       .catch(console.error);
   }, [user]);
@@ -39,10 +51,16 @@ export default function ProfilePage() {
     setProfileMsg(null);
     try {
       await api.auth.update({ name, avatar: avatar || undefined });
-      setProfileMsg({ type: "success", text: "Perfil atualizado com sucesso!" });
+      setProfileMsg({
+        type: "success",
+        text: "Perfil atualizado com sucesso!",
+      });
       window.location.reload();
     } catch (err: unknown) {
-      setProfileMsg({ type: "error", text: err instanceof Error ? err.message : "Erro ao atualizar perfil" });
+      setProfileMsg({
+        type: "error",
+        text: err instanceof Error ? err.message : "Erro ao atualizar perfil",
+      });
     } finally {
       setIsSavingProfile(false);
     }
@@ -60,7 +78,10 @@ export default function ProfilePage() {
       const token = localStorage.getItem("furagames_token");
       const res = await fetch("/api/user/profile", {
         method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ currentPassword, newPassword }),
       });
       const data = await res.json();
@@ -70,7 +91,10 @@ export default function ProfilePage() {
       setNewPassword("");
       setConfirmPassword("");
     } catch (err: unknown) {
-      setPasswordMsg({ type: "error", text: err instanceof Error ? err.message : "Erro ao alterar senha" });
+      setPasswordMsg({
+        type: "error",
+        text: err instanceof Error ? err.message : "Erro ao alterar senha",
+      });
     } finally {
       setIsSavingPassword(false);
     }
@@ -92,25 +116,38 @@ export default function ProfilePage() {
           <p className="text-sm text-zinc-400 mt-1">Grupos</p>
         </div>
         <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800 text-center">
-          <p className="text-sm font-mono text-zinc-300 mt-1 truncate">{user?.email}</p>
+          <p className="text-sm font-mono text-zinc-300 mt-1 truncate">
+            {user?.email}
+          </p>
           <p className="text-sm text-zinc-400 mt-1">Email</p>
         </div>
       </div>
 
       {}
-      <form onSubmit={handleSaveProfile} className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 space-y-5 mb-6">
+      <form
+        onSubmit={handleSaveProfile}
+        className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 space-y-5 mb-6"
+      >
         <div className="flex items-center gap-3 mb-2">
           <User className="w-5 h-5 text-yellow-400" />
-          <h2 className="text-lg font-semibold text-zinc-100">Informações Pessoais</h2>
+          <h2 className="text-lg font-semibold text-zinc-100">
+            Informações Pessoais
+          </h2>
         </div>
 
         {}
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-zinc-700 overflow-hidden flex items-center justify-center flex-shrink-0">
             {avatar ? (
-              <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+              <img
+                src={avatar}
+                alt="Avatar"
+                className="w-full h-full object-cover"
+              />
             ) : (
-              <span className="text-2xl font-bold text-zinc-400">{name?.[0]?.toUpperCase() || "?"}</span>
+              <span className="text-2xl font-bold text-zinc-400">
+                {name?.[0]?.toUpperCase() || "?"}
+              </span>
             )}
           </div>
           <div className="flex-1">
@@ -122,14 +159,16 @@ export default function ProfilePage() {
               type="url"
               value={avatar}
               onChange={(e) => setAvatar(e.target.value)}
-              placeholder="https:
+              placeholder="https://..."
               className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-zinc-100">Nome / Nickname *</label>
+          <label className="text-sm font-medium text-zinc-100">
+            Nome / Nickname *
+          </label>
           <input
             type="text"
             value={name}
@@ -143,7 +182,9 @@ export default function ProfilePage() {
         </div>
 
         {profileMsg && (
-          <p className={`text-sm px-3 py-2 rounded-lg ${profileMsg.type === "success" ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"}`}>
+          <p
+            className={`text-sm px-3 py-2 rounded-lg ${profileMsg.type === "success" ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"}`}
+          >
             {profileMsg.text}
           </p>
         )}
@@ -159,14 +200,19 @@ export default function ProfilePage() {
       </form>
 
       {}
-      <form onSubmit={handleSavePassword} className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 space-y-5">
+      <form
+        onSubmit={handleSavePassword}
+        className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 space-y-5"
+      >
         <div className="flex items-center gap-3 mb-2">
           <Lock className="w-5 h-5 text-yellow-400" />
           <h2 className="text-lg font-semibold text-zinc-100">Alterar Senha</h2>
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-zinc-100">Senha Atual *</label>
+          <label className="text-sm font-medium text-zinc-100">
+            Senha Atual *
+          </label>
           <input
             type="password"
             value={currentPassword}
@@ -177,7 +223,9 @@ export default function ProfilePage() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-zinc-100">Nova Senha *</label>
+          <label className="text-sm font-medium text-zinc-100">
+            Nova Senha *
+          </label>
           <input
             type="password"
             value={newPassword}
@@ -189,7 +237,9 @@ export default function ProfilePage() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-zinc-100">Confirmar Nova Senha *</label>
+          <label className="text-sm font-medium text-zinc-100">
+            Confirmar Nova Senha *
+          </label>
           <input
             type="password"
             value={confirmPassword}
@@ -201,7 +251,9 @@ export default function ProfilePage() {
         </div>
 
         {passwordMsg && (
-          <p className={`text-sm px-3 py-2 rounded-lg ${passwordMsg.type === "success" ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"}`}>
+          <p
+            className={`text-sm px-3 py-2 rounded-lg ${passwordMsg.type === "success" ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"}`}
+          >
             {passwordMsg.text}
           </p>
         )}
