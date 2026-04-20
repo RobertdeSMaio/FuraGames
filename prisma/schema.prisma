@@ -8,57 +8,59 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  avatar    String?
-  createdAt DateTime @default(now())
+  id            String        @id @default(uuid())
+  name          String
+  email         String        @unique
+  password      String
+  avatar        String?
+  createdAt     DateTime      @default(now())
 
   reviews       GameReview[]
   ownedGroups   Group[]       @relation("GroupOwner")
   groupMembers  GroupMember[]
   sentInvites   Invite[]      @relation("InviteSender")
+  
+  comments      Comment[]     
 
   @@map("users")
 }
 
 model GameReview {
-  id          String   @id @default(uuid())
-  userId      String
-  groupId     String?
-  title       String
-  platform    String
-  genre       String
-  rating      Int
-  hoursPlayed Float
-  status      String   // playing | completed | dropped | on-hold | want-to-play
-  review      String
-  pros        String[]
-  cons        String[]
-  coverImage  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String    @id @default(uuid())
+  userId       String
+  groupId      String?
+  title        String
+  platform     String
+  genre        String
+  rating       Int
+  hoursPlayed  Float
+  status       String    // playing | completed | dropped | on-hold | want-to-play
+  review       String
+  pros         String[]
+  cons         String[]
+  coverImage   String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  group    Group?    @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  comments Comment[]
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group        Group?    @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  comments     Comment[]
 
   @@map("game_reviews")
 }
 
 model Group {
-  id          String   @id @default(uuid())
+  id          String        @id @default(uuid())
   name        String
   description String
   ownerId     String
-  inviteCode  String   @unique @default(cuid())
-  createdAt   DateTime @default(now())
+  inviteCode  String        @unique @default(cuid())
+  createdAt   DateTime      @default(now())
 
-  owner   User          @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  members GroupMember[]
-  reviews GameReview[]
-  invites Invite[]
+  owner       User          @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     GroupMember[]
+  reviews     GameReview[]
+  invites     Invite[]
 
   @@map("groups")
 }
@@ -69,37 +71,37 @@ model GroupMember {
   role     String   @default("member") // owner | admin | member
   joinedAt DateTime @default(now())
 
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@id([userId, groupId])
   @@map("group_members")
 }
 
 model Invite {
-  id           String   @id @default(uuid())
-  groupId      String
-  invitedBy    String
-  invitedEmail String
-  status       String   @default("pending") // pending | accepted | declined
-  createdAt    DateTime @default(now())
+  id            String   @id @default(uuid())
+  groupId       String
+  invitedBy     String
+  invitedEmail  String
+  status        String   @default("pending") // pending | accepted | declined
+  createdAt     DateTime @default(now())
 
-  group     Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  invitedByUser User @relation("InviteSender", fields: [invitedBy], references: [id], onDelete: Cascade)
+  group         Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  invitedByUser User     @relation("InviteSender", fields: [invitedBy], references: [id], onDelete: Cascade)
 
   @@map("invites")
 }
 
 model Comment {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   reviewId  String
   userId    String
   content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
-  review GameReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review    GameReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("comments")
 }
