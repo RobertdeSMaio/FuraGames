@@ -319,7 +319,7 @@ function JoinGroupModal({
     setError("");
     setIsSubmitting(true);
     try {
-      const { group } = await api.groups.join(inviteCode.toUpperCase());
+      const { group } = await api.groups.join(inviteCode);
       onJoined(group);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Código de convite inválido");
@@ -342,7 +342,7 @@ function JoinGroupModal({
             <input
               type="text"
               value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+              onChange={(e) => setInviteCode(e.target.value)}
               placeholder="Ex: ABC123"
               required
               maxLength={255}
