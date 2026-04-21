@@ -16,7 +16,10 @@ export default function GroupsPage() {
 
   useEffect(() => {
     if (user) {
-      api.groups.list().then(({ groups }) => setGroups(groups)).catch(console.error);
+      api.groups
+        .list()
+        .then(({ groups }) => setGroups(groups))
+        .catch(console.error);
     }
   }, [user]);
 
@@ -40,7 +43,11 @@ export default function GroupsPage() {
 
   const handleDeleteGroup = async (groupId: string) => {
     if (!user) return;
-    if (confirm("Tem certeza que deseja excluir este grupo? Todas as análises do grupo serão perdidas.")) {
+    if (
+      confirm(
+        "Tem certeza que deseja excluir este grupo? Todas as análises do grupo serão perdidas.",
+      )
+    ) {
       try {
         await api.groups.delete(groupId);
         setGroups(groups.filter((g) => g.id !== groupId));
@@ -338,7 +345,7 @@ function JoinGroupModal({
               onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
               placeholder="Ex: ABC123"
               required
-              maxLength={10}
+              maxLength={255}
               className="w-full px-4 py-3 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 font-mono uppercase tracking-wider"
             />
             {error && <p className="text-sm text-red-400">{error}</p>}
